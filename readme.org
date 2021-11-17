@@ -1,0 +1,40 @@
+#+TITLE: PlotsOptim
+
+
+* Checking derivatives using Taylor developments
+
+#+begin_src julia
+using PlotsOptim
+using LinearAlgebra
+
+f(x) = norm(x, 2)^2
+
+x = [2, 2]
+d1 = [4, 4]
+d2 = [-4, 4]
+
+model_to_functions = OrderedDict{String, Function}(
+    "f tangent" => t -> abs( f(x+t*d1) - f(x) ),
+    "f rand" => t -> abs( f(x+t*d2) - f(x) ),
+)
+
+model_to_curves = build_logcurves(model_to_functions)
+
+## computing slopes
+for (model, (xs, ys)) in model_to_curves
+    @show model
+    xsclean, ysclean = remove_small_functionvals(xs, ys)
+    β, residual= build_affinemodel(xsclean, ysclean)
+    @show β, residual
+
+    push!(model_to_functions, "$model reg" => t -> exp(β[2] + β[1]*log(t)))
+end
+plot_taylordev(build_logcurves(model_to_functions))
+plot_taylordev(model_to_functions)
+#+end_src
+
+* Performance profiles
+#+begin_src julia
+toydata = PlotsOptim.perfprofile_toydata()
+plot_perfprofile(toydata, "My performance profile")
+#+end_src
