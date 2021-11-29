@@ -52,18 +52,22 @@ end
     $TYPEDSIGNATURES
 
 The base function for plotting positive stuff. The data plotted for each trace
-is extracted by the functions `get_abscisses` and `get_ordinates`, which
-default to [`get_legendname`](@ref) and [`get_curveparams`](@ref).
+is extracted by the functions `get_abscisses` and `get_ordinates`. See
+[`get_legendname`](@ref) and [`get_curveparams`](@ref) for examples.
 
 To customize the styling and legend of each curve, define your implementations
 of:
 - [`get_abscisses`](@ref),
 - [`get_ordinates`](@ref).
+
+## Arguments:
+- `simplifystairs`: call the function `simplify_stairs` on every curve;
+- `callback!: (plotdata, obj, trace, abs, ord)->nothing`: allows one to add more information to the figure;
 """
 function plot_curves(
     object_to_trace::AbstractDict,
-    get_abscisses,
-    get_ordinates;
+    get_abscisses::Function,
+    get_ordinates::Function;
     xlabel = "time (s)",
     ylabel = "",
     xmode = "normal",
@@ -71,7 +75,9 @@ function plot_curves(
     nmarks = 20,
     includelegend = true,
     title = nothing,
-    horizontallines = []
+    simplifystairs = false,
+    callback! = (wargs...) -> nothing,
+    horizontallines = [],
 )
     ntraces = length(object_to_trace)
     COLORS = (ntraces <= 7 ? COLORS_7 : COLORS_10)
@@ -83,6 +89,14 @@ function plot_curves(
 
     algoid = 1
     for (obj, trace) in object_to_trace
+        abscisses = get_abscisses(obj, trace)
+        ordinates = get_ordinates(obj, trace)
+        curvestyle = get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)
+
+        if simplifystairs
+            abscisses, ordinates = simplify_stairs(abscisses, ordinates)
+        end
+
         push!(
             plotdata,
             PlotInc(
@@ -91,12 +105,14 @@ function plot_curves(
                     "mark repeat" => markrepeat,
                 ),
                 Coordinates(
-                    get_abscisses(obj, trace),
-                    get_ordinates(obj, trace)
+                    abscisses,
+                    ordinates
                 ),
             ),
         )
         includelegend && push!(plotdata, LegendEntry(get_legendname(obj)))
+
+        callback!(plotdata, obj, trace, abscisses, ordinates, curvestyle)
         algoid += 1
     end
 
@@ -104,7 +120,7 @@ function plot_curves(
         push!(plotdata, @pgf HLine({ dashed, black }, hlevel))
     end
 
-    return TikzDocument(TikzPicture(@pgf Axis(
+    return TikzPicture(@pgf Axis(
         {
             xmode = xmode,
             ymode = ymode,
@@ -118,5 +134,50 @@ function plot_curves(
             xmin = 0,
         },
         plotdata...,
-    )))
+    ))
+end
+
+
+"""
+    $SIGNATURES
+
+This function simplifies data that will be plotted. This function assumes the
+data forms a stairway and does not change the final figure.
+"""
+function simplify_stairs(abs::Vector{Tf}, ord::Vector{Tf}) where Tf
+    @show abs, ord
+
+    if !issorted(abs)
+        @warn "simplify_stairs() assumes sorted abscisses as input. No simplification."
+        return(abs, ord)
+    end
+
+    xs = Tf[]
+    ys = Tf[]
+    indadd = 1
+
+    i_beg = 1
+    i_end = 1
+    while i_beg <= length(abs)
+        @show xs, ys
+        @show i_beg, i_end
+        while i_end <= length(abs) && ord[i_end] == ord[i_beg]
+            i_end += 1
+        end
+        @show i_end
+
+        # simplify if need be
+        push!(xs, abs[i_beg])
+        push!(ys, ord[i_beg])
+
+        if i_beg < i_end-1
+            push!(xs, abs[i_end-1])
+            push!(ys, ord[i_end-1])
+        end
+
+        i_beg = i_end
+        println("")
+    end
+
+    return xs, ys
 end
