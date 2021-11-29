@@ -145,8 +145,6 @@ This function simplifies data that will be plotted. This function assumes the
 data forms a stairway and does not change the final figure.
 """
 function simplify_stairs(abs::Vector{Tf}, ord::Vector{Tf}) where Tf
-    @show abs, ord
-
     if !issorted(abs)
         @warn "simplify_stairs() assumes sorted abscisses as input. No simplification."
         return(abs, ord)
@@ -159,12 +157,9 @@ function simplify_stairs(abs::Vector{Tf}, ord::Vector{Tf}) where Tf
     i_beg = 1
     i_end = 1
     while i_beg <= length(abs)
-        @show xs, ys
-        @show i_beg, i_end
         while i_end <= length(abs) && ord[i_end] == ord[i_beg]
             i_end += 1
         end
-        @show i_end
 
         # simplify if need be
         push!(xs, abs[i_beg])
@@ -176,7 +171,6 @@ function simplify_stairs(abs::Vector{Tf}, ord::Vector{Tf}) where Tf
         end
 
         i_beg = i_end
-        println("")
     end
 
     return xs, ys
