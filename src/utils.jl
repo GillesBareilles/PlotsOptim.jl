@@ -40,13 +40,19 @@ Save a TikzDocument as tex and pdf, raise an error if pdf compilation fails.
 function savefig(fig::TikzDocument, savepath; savetex = true, savepdf = true)
     if savetex
         PGFPlotsX.savetex(savepath*".tex", fig, include_preamble=false)
+        @info "Wrote $(savepath).tex"
     end
     if savepdf
         try
             PGFPlotsX.savepdf(savepath*".pdf", fig)
+            @info "Wrote $(savepath).pdf"
         catch e
             @warn "Could not build $savepath" e
         end
     end
     return
+end
+
+function savefig(fig::TikzPicture, savepath; kwargs...)
+    savefig(TikzDocument(fig), savepath; kwargs...)
 end

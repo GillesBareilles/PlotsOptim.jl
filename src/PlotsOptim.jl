@@ -7,8 +7,12 @@ using LinearAlgebra
 using DataStructures
 using DocStringExtensions
 
+using Meshes
+using Infiltrator
+
 include("utils.jl")
 include("performance_profile.jl")
+include("simplify.jl")
 
 function contour(x, y, f; levels=nothing)
     return @pgf Axis(

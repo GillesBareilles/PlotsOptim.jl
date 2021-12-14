@@ -13,6 +13,12 @@ get_curveparams
 get_legendname
 ```
 
+The lines may be simplified, thus calling
+```@docs
+PlotsOptim.simplifyline
+```
+
+
 Example functions:
 ```@docs
 PlotsOptim.get_abscisses

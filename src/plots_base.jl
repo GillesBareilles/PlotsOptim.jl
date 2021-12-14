@@ -75,7 +75,8 @@ function plot_curves(
     nmarks = 20,
     includelegend = true,
     title = nothing,
-    simplifystairs = false,
+    simplifylines = false,
+    simplificationfactor = 1e-2,
     callback! = (wargs...) -> nothing,
     horizontallines = [],
 )
@@ -89,30 +90,28 @@ function plot_curves(
 
     algoid = 1
     for (obj, trace) in object_to_trace
-        abscisses = get_abscisses(obj, trace)
-        ordinates = get_ordinates(obj, trace)
+        abs = get_abscisses(obj, trace)
+        ord = get_ordinates(obj, trace)
         curvestyle = get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)
 
-        if simplifystairs
-            abscisses, ordinates = simplify_stairs(abscisses, ordinates)
+        points = [(abs[i], ord[i]) for i in 1:length(abs)]
+        if simplifylines
+            points = simplifyline(points, simplificationfactor; xmode, ymode)
         end
+
+        lineoptions = get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)
+        !isinf(markrepeat) && push!(lineoptions, "mark repeat" => markrepeat)
 
         push!(
             plotdata,
             PlotInc(
-                PGFPlotsX.Options(
-                    get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)...,
-                    "mark repeat" => markrepeat,
-                ),
-                Coordinates(
-                    abscisses,
-                    ordinates
-                ),
+                PGFPlotsX.Options(lineoptions...),
+                Coordinates(points),
             ),
         )
         includelegend && push!(plotdata, LegendEntry(get_legendname(obj)))
 
-        callback!(plotdata, obj, trace, abscisses, ordinates, curvestyle)
+        callback!(plotdata, obj, trace, abs, ord, curvestyle)
         algoid += 1
     end
 
@@ -137,41 +136,3 @@ function plot_curves(
     ))
 end
 
-
-"""
-    $SIGNATURES
-
-This function simplifies data that will be plotted. This function assumes the
-data forms a stairway and does not change the final figure.
-"""
-function simplify_stairs(abs::Vector{Tf}, ord::Vector{Tf}) where Tf
-    if !issorted(abs)
-        @warn "simplify_stairs() assumes sorted abscisses as input. No simplification."
-        return(abs, ord)
-    end
-
-    xs = Tf[]
-    ys = Tf[]
-    indadd = 1
-
-    i_beg = 1
-    i_end = 1
-    while i_beg <= length(abs)
-        while i_end <= length(abs) && ord[i_end] == ord[i_beg]
-            i_end += 1
-        end
-
-        # simplify if need be
-        push!(xs, abs[i_beg])
-        push!(ys, ord[i_beg])
-
-        if i_beg < i_end-1
-            push!(xs, abs[i_end-1])
-            push!(ys, ord[i_end-1])
-        end
-
-        i_beg = i_end
-    end
-
-    return xs, ys
-end

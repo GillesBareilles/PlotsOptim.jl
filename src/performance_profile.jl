@@ -13,7 +13,7 @@ problems.
 # Assumptions:
 - performance: lower is better
 """
-function plot_perfprofile(solverxpb_perf::OrderedDict{Tuple{String, String}, Tf}, perfdescr::String) where {Tf <: Real}
+function plot_perfprofile(solverxpb_perf::OrderedDict{Tuple{String, String}, Tf}; perfdescr = nothing) where {Tf <: Real}
     plotdata = []
 
     solvers = SortedSet{String}([k[1] for k in keys(solverxpb_perf)])
@@ -33,6 +33,9 @@ function plot_perfprofile(solverxpb_perf::OrderedDict{Tuple{String, String}, Tf}
         relperfprofile = [ count(<=(t), pb_to_solverrelperf ) / length(problems) for t in ts ]
         @debug "plot perfprofile" solver pb_to_solverrelperf
 
+        # abs, ord = simplify ? simplify_stairs(collect(ts), relperfprofile) : ts, relperfprofile
+        abs, ord = ts, relperfprofile
+
         push!(
             plotdata,
             PlotInc(
@@ -41,7 +44,7 @@ function plot_perfprofile(solverxpb_perf::OrderedDict{Tuple{String, String}, Tf}
                     "color" => COLORS_7[i],
                     "mark repeat" => 10,
                 ),
-                Coordinates(ts, relperfprofile),
+                Coordinates(abs, ord),
             ),
         )
         push!(plotdata, LegendEntry(solver))

@@ -93,3 +93,18 @@ function build_affinemodel(xs, ys)
     empiricalrisk = (1/(2*n)) * norm((Y - X * β))^2
     return β, empiricalrisk
 end
+
+"""
+    $TYPEDSIGNATURES
+
+Build the affine models of the input functions.
+"""
+function build_affinemodels(model_to_function::OrderedDict{String, Function})
+    res = OrderedDict()
+    for (model, curve) in build_logcurves(model_to_function)
+        xs, ys = curve
+        xs, ys = remove_small_functionvals(xs, ys)
+        res[model] = build_affinemodel(xs, ys)
+    end
+    return res
+end
