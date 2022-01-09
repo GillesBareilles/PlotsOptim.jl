@@ -10,11 +10,15 @@ end
 """
     $TYPEDSIGNATURES
 
-Build the OrderedDict pairing the model name to the tuple of abscisses and ordinates of the input function.
+Build the OrderedDict pairing the model name to the tuple of abscisses and
+ordinates of the input function. The values are thresholded at `minval`,
+and converted to `Float64`.
 """
-function build_logcurves(model_to_function::OrderedDict{String, Function}; npoints=50, minval=1e-16)
+function build_logcurves(model_to_function::OrderedDict{String, Function}; minval = eps(Float64), npoints=50)
     ts = logspaced_range(npoints = npoints)
-    return OrderedDict( model => (ts, [ max(minval, φ(t)) for t in ts ]) for (model, φ) in model_to_function )
+
+    res = OrderedDict( model => (ts, Float64[ max(minval, φ(t)) for t in ts ]) for (model, φ) in model_to_function )
+    return res
 end
 
 """
@@ -41,8 +45,12 @@ end
 Plot the Taylor development contained in `model_to_curve` (e.g. an output of
  [`build_logcurves`](@ref)).
 """
-function plot_taylordev(model_to_function::OrderedDict{String, Function})
-    return plot_taylordev(build_logcurves(model_to_function))
+function plot_taylordev(model_to_function::OrderedDict{String, Function}; Tf = Float64, minval = nothing)
+    if isnothing(minval)
+        minval = eps(Tf)
+    end
+    curves = build_logcurves(model_to_function; minval)
+    return plot_taylordev(curves)
 end
 
 
@@ -83,6 +91,12 @@ Fit an affine regressor explaining `ys` in terms of `xs`. Return the slope and r
 """
 function build_affinemodel(xs, ys)
     n = length(xs)
+
+    if length(xs) == 0
+        # Ordinates are too small to count
+        return [0.0, 0.0], 0.0
+    end
+
     X = ones(n, 2)
     X[:, 1] = log.(xs)
     Y = log.(ys)
@@ -99,9 +113,9 @@ end
 
 Build the affine models of the input functions.
 """
-function build_affinemodels(model_to_function::OrderedDict{String, Function})
+function build_affinemodels(model_to_function::OrderedDict{String, Function}; Tf=Float64)
     res = OrderedDict()
-    for (model, curve) in build_logcurves(model_to_function)
+    for (model, curve) in build_logcurves(model_to_function; minval = 10*eps(Tf))
         xs, ys = curve
         xs, ys = remove_small_functionvals(xs, ys)
         res[model] = build_affinemodel(xs, ys)

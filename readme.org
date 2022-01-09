@@ -1,5 +1,8 @@
 #+TITLE: PlotsOptim.jl
 
+Build plots with ~PGFPlots(X.jl)~ for all your optimal algorithms.
+
+*This repository is a work in progress.* Check out the docs for more information.
 
 * Checking derivatives using Taylor developments
 

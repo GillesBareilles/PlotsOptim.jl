@@ -16,8 +16,8 @@ Produce the default style of the curve for the given object.
 """
 function get_curveparams(object, objid, nobjs, COLORS, MARKERS)
     return OrderedDict(
-        "mark" => MARKERS[mod(objid, nobjs) + 1],
-        "color" => COLORS[objid],
+        "mark" => MARKERS[mod(objid, length(MARKERS)) + 1],
+        "color" => COLORS[mod(objid, length(COLORS)) + 1],
     )
 end
 
