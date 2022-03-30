@@ -3,8 +3,8 @@
 
 Build a logspaced range from 10^`min` to 10^`max`. Default is [1e-15, -1].
 """
-function logspaced_range(;npoints = 50, min=-15, max=-1)
-    return 10 .^ collect(range(min, max, length=npoints))
+function logspaced_range(;npoints = 50, min=-15, max=-1, Tf=Float64)
+    return Tf(10) .^ collect(range(min, max, length=npoints))
 end
 
 """
@@ -14,10 +14,11 @@ Build the OrderedDict pairing the model name to the tuple of abscisses and
 ordinates of the input function. The values are thresholded at `minval`,
 and converted to `Float64`.
 """
-function build_logcurves(model_to_function::OrderedDict{String, Function}; minval = eps(Float64), npoints=50)
-    ts = logspaced_range(npoints = npoints)
+function build_logcurves(model_to_function::OrderedDict{String, Function}; minval = nothing, npoints=50, Tf)
+    isnothing(minval) && (minval = eps(Tf))
+    ts = logspaced_range(npoints = npoints; Tf)
 
-    res = OrderedDict( model => (ts, Float64[ max(minval, φ(t)) for t in ts ]) for (model, φ) in model_to_function )
+    res = OrderedDict( model => (ts, Tf[ max(minval, φ(t)) for t in ts ]) for (model, φ) in model_to_function )
     return res
 end
 
@@ -59,20 +60,15 @@ end
     $TYPEDSIGNATURES
 
 Remove the entries `i` of `xs` and `ys` such that `y[i]` has smaller magnitude than `threshold`.
+This threshold is set to `1e3 eps(Tf)` by default.
+
+The point of this is to remove functions values that are miscomputed due to numerical errors.
 """
-function remove_small_functionvals(xs, ys; threshold=1e-12)
-    nnzentries = count(y->abs(y)> threshold, ys)
-    xs_clean = zeros(nnzentries)
-    ys_clean = zeros(nnzentries)
-    ind_clean = 1
-    for i in 1:length(xs)
-        if abs(ys[i]) > 1e-12
-            xs_clean[ind_clean] = xs[i]
-            ys_clean[ind_clean] = ys[i]
-            ind_clean += 1
-        end
-    end
-    return xs_clean, ys_clean
+function remove_small_functionvals(xs::Vector{Tf}, ys::Vector{Tf}; threshold=nothing) where Tf
+    isnothing(threshold) && (threshold = 1e3 * eps(Tf))
+
+    nnzentries = abs.(ys) .> threshold
+    return xs[nnzentries], ys[nnzentries]
 end
 
 
@@ -89,15 +85,16 @@ Fit an affine regressor explaining `ys` in terms of `xs`. Return the slope and r
 - X ∈ ℝ^{nx2} - absciss and intercept
 - Y ∈ ℝ^{nx1} - ordonate
 """
-function build_affinemodel(xs, ys)
+function build_affinemodel(xs::Vector{Tf}, ys::Vector{Tf}) where Tf
     n = length(xs)
 
     if length(xs) == 0
         # Ordinates are too small to count
-        return [0.0, 0.0], 0.0
+        @info "Linear regression: no data to regress on"
+        return Tf[0.0, 0.0], Tf(0.0)
     end
 
-    X = ones(n, 2)
+    X = ones(Tf, n, 2)
     X[:, 1] = log.(xs)
     Y = log.(ys)
 
@@ -115,10 +112,33 @@ Build the affine models of the input functions.
 """
 function build_affinemodels(model_to_function::OrderedDict{String, Function}; Tf=Float64)
     res = OrderedDict()
-    for (model, curve) in build_logcurves(model_to_function; minval = 10*eps(Tf))
+    for (model, curve) in build_logcurves(model_to_function; Tf)
         xs, ys = curve
+        # xs, ys = remove_small_functionvals(xs, ys; threshold = 1e5*eps(Tf))
         xs, ys = remove_small_functionvals(xs, ys)
         res[model] = build_affinemodel(xs, ys)
+
     end
     return res
+end
+
+"""
+    $TYPEDSIGNATURES
+
+Check that the given `curve` has at least slope `targetslope`, accounting
+for the fact that the curve may be parasited by numerical errors at low values.
+"""
+function check_curveslope(curve::Tuple{Vector{Tf}, Vector{Tf}}, targetslope) where Tf
+    xs, ys = curve
+    xs_clean, ys_clean = PlotsOptim.remove_small_functionvals(xs, ys)
+    res = build_affinemodel(xs_clean, ys_clean)
+
+    slope, ordorig = res[1]
+    residual = res[2]
+
+    # either the slope is as good as predicted, or the function is plain flat
+    # when there is no data to regress on, build_affinemodel returns exactly [0, 0]
+    ismodelsatisfying = (slope >= targetslope - 0.1) || (slope == ordorig == Tf(0))
+    isresidualsatisfying = residual < eps(Tf)
+    return ismodelsatisfying && isresidualsatisfying
 end

@@ -34,6 +34,7 @@ end
 
 include("model_to_curves.jl")
 export build_affinemodel
+export check_curveslope
 export plot_taylordev
 
 include("plots_base.jl")

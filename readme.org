@@ -31,6 +31,8 @@ for (model, (xs, ys)) in model_to_curves
     @show β, residual
 
     push!(model_to_functions, "$model reg" => t -> exp(β[2] + β[1]*log(t)))
+
+    @show check_curveslope(curve, 2)
 end
 plot_taylordev(build_logcurves(model_to_functions))
 plot_taylordev(model_to_functions)
