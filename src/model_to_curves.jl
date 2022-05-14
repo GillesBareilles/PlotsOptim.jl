@@ -14,7 +14,7 @@ Build the OrderedDict pairing the model name to the tuple of abscisses and
 ordinates of the input function. The values are thresholded at `minval`,
 and converted to `Float64`.
 """
-function build_logcurves(model_to_function::OrderedDict{String, Function}; minval = nothing, npoints=50, Tf)
+function build_logcurves(model_to_function::OrderedDict{String, Function}; minval = nothing, npoints=50, Tf= Float64)
     isnothing(minval) && (minval = eps(Tf))
     ts = logspaced_range(npoints = npoints; Tf)
 
@@ -50,7 +50,7 @@ function plot_taylordev(model_to_function::OrderedDict{String, Function}; Tf = F
     if isnothing(minval)
         minval = eps(Tf)
     end
-    curves = build_logcurves(model_to_function; minval)
+    curves = build_logcurves(model_to_function; minval, Tf)
     return plot_taylordev(curves)
 end
 

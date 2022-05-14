@@ -77,6 +77,8 @@ function plot_curves(
     title = nothing,
     simplifylines = false,
     simplificationfactor = 1e-2,
+    width = "8cm",
+    height = "6cm",
     callback! = (wargs...) -> nothing,
     horizontallines = [],
 )
@@ -131,6 +133,8 @@ function plot_curves(
             unbounded_coords = "jump",
             title = title,
             xmin = 0,
+            width = width,
+            height = height,
         },
         plotdata...,
     ))
