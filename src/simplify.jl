@@ -49,7 +49,7 @@ converting coordinates to `log10` and back when needed.
 
 The implemented algorithm relies on `Meshes.simplify`.
 """
-function simplifyline(inpoints, precision; xmode, ymode) where Tf
+function simplifyline(inpoints, precision; xmode="normal", ymode="normal") where Tf
     @assert xmode in ["normal", "log"]
     @assert ymode in ["normal", "log"]
 

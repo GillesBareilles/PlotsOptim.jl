@@ -10,6 +10,27 @@ using DocStringExtensions
 using Meshes
 using Infiltrator
 
+function __init__()
+    if isempty(PGFPlotsX.CUSTOM_PREAMBLE)
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{chartreuse}{HTML}{288800}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{darkgray}{HTML}{111111}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{lightgray}{HTML}{555555}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{tomato}{HTML}{FF6347}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{snow}{HTML}{F1F1F1}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{whiteee}{HTML}{EEEEEC}")
+        #
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c1}{RGB}{238,102,119}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c2}{RGB}{68, 119, 170}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c3}{RGB}{102, 204, 238}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c4}{RGB}{34, 136, 51}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c5}{RGB}{204, 187, 68}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c6}{RGB}{238, 102, 119}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c7}{RGB}{170, 51, 119}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c8}{RGB}{187, 187, 187}")
+    end
+    return
+end
+
 include("utils.jl")
 include("performance_profile.jl")
 include("simplify.jl")
@@ -41,6 +62,9 @@ include("plots_base.jl")
 export plot_curves
 export get_legendname, get_curveparams
 export savefig
+
+include("planeplots.jl")
+export baseaxis, get_axesdiscretization, add_point!, onlyvisible!, add_surface!, add_text!
 
 export plot_perfprofile
 
