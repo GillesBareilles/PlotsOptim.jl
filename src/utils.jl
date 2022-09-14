@@ -37,21 +37,25 @@ MARKERS = [
 
 Save a TikzDocument as tex and pdf, raise an error if pdf compilation fails.
 """
-function savefig(fig::TikzDocument, savepath; savetex = true, savepdf = true)
+function savefig(fig::TikzDocument, savepath; savetex = true, savepdf = true, FIGFOLDER = ".")
+    fullpath = joinpath(FIGFOLDER, savepath)
     if savetex
-        pgfsave(savepath*".tex", fig, include_preamble=false)
+        pgfsave(fullpath*".tex", fig, include_preamble=false)
     end
     if savepdf
         try
-            pgfsave(savepath*".pdf", fig)
+            pgfsave(fullpath*".pdf", fig)
         catch e
-            @warn "Could not build $savepath" e
+            @warn "Could not build $fullpath" e
         end
     end
-    @info "wrote $savepath"
+    @info "wrote $fullpath"
     return
 end
 
-function savefig(fig::TikzPicture, savepath; kwargs...)
-    savefig(TikzDocument(fig), savepath; kwargs...)
+function savefig(fig::TikzPicture, savepath)
+    savefig(TikzDocument(fig), savepath)
+end
+function savefig(axis::PGFPlotsX.Axis, savepath; kwargs...)
+    savefig(TikzDocument(TikzPicture(axis)), savepath; kwargs...)
 end

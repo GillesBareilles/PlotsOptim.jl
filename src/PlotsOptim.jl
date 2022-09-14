@@ -27,6 +27,8 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c6}{RGB}{238, 102, 119}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c7}{RGB}{170, 51, 119}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c8}{RGB}{187, 187, 187}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\prox}{\textrm{prox}}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\M}{\mathcal{M}}")
     end
     return
 end
@@ -63,8 +65,9 @@ export plot_curves
 export get_legendname, get_curveparams
 export savefig
 
-include("planeplots.jl")
-export baseaxis, get_axesdiscretization, add_point!, onlyvisible!, add_surface!, add_text!
+include("plots_plane.jl")
+include("plots_line.jl")
+export baseaxis, get_axesdiscretization, add_point!, onlyvisible!, add_surface!, add_text!, add_arrow!
 
 export plot_perfprofile
 

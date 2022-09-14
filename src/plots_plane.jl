@@ -49,7 +49,7 @@ end
 Add surface defined by `coords`, a vector of length 2 vectors.
 """
 function add_surface!(axis, color, coords)
-    coords_simple = PlotsOptim.simplifyline(coords, 0.001)
+    coords_simple = PlotsOptim.simplifyline(vec2tikz.(coords), 0.001)
     push!(
         axis,
         PlotInc(
@@ -60,7 +60,7 @@ function add_surface!(axis, color, coords)
                 "draw" => "none",
                 "fill_opacity" => 0.25,
             ),
-            Coordinates(vec2tikz.(coords_simple)),
+            Coordinates(coords_simple),
         ),
     )
 end
@@ -103,13 +103,15 @@ end
 
 Add text `text` at position `pos`, possibly shifted by `pert`.
 """
-function add_text!(axis, pos, text; pert = [0., 0.], color="black")
+function add_text!(axis, pos, text; pert = [0., 0.], color="black", size=raw"\small")
     push!(axis, string(
         raw"\node[", color, "] at (axis cs: ",
         pos[1] + pert[1],
         ", ",
         pos[2] + pert[2],
-        raw") {{\small ",
+        raw") {{",
+        size,
+        " ",
         text,
         raw"}};"
     ))
@@ -122,7 +124,7 @@ end
 Add curve defined by `coords`, with some `color`.
 The curve is simplified with `(@simplifyline)`.
 """
-function add_curve!(axis, coords; color = "chartreuse")
+function add_curve!(axis, coords; color = "chartreuse", style = "")
     coords_simple = PlotsOptim.simplifyline(coords, 0.001)
     push!(
         axis,
@@ -134,6 +136,7 @@ function add_curve!(axis, coords; color = "chartreuse")
                 "thick" => nothing,
                 "solid" => nothing,
                 "lightgray" => nothing,
+                style => nothing,
                 color => nothing,
                 # "mark size" => "1pt"
             ),
@@ -173,6 +176,7 @@ end
 Add the contour plot of function `F` with bounds `axb`.
 
 Parameters:
+- `colormap`: default is "hot", "blackwhite" is possible
 - `opacity`
 - `levels` either the number of levels, or the vector of level values
 """
@@ -200,5 +204,68 @@ function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colorm
     )
 end
 
+raw"""
+    $TYPEDSIGNATURES
+
+Add the specific level of function $h$ corresponding to value $val$.
+"""
+function add_level!(axis, axb, h, val; color = "chartreuse")
+    xs, ys = get_axesdiscretization(axb, 100)
+    φ(x, y) = h([x, y])
+    for line in contours(xs, ys, φ.(xs, ys'), [val]).contours[1].lines
+        coords = PlotsOptim.vec2tikz.(line.vertices)
+        add_curve!(axis, coords; color)
+    end
+    return
+end
+
+"""
+    $TYPEDSIGNATURES
+
+Add the linear space TODO
+"""
+function plot_linspace!(axis, p, v; color = "gray", style = "thin, dashed", trange = -2:0.1:2)
+    coords = [(p .+ t .* v) for t in trange]
+    add_curve!(axis, PlotsOptim.vec2tikz.(coords); color, style)
+    return
+end
+
+
+"""
+    $TYPEDSIGNATURES
+
+TODO
+"""
+function add_iterates!(axis, iterates::Matrix; color="blue", mark="+")
+    coords = [PlotsOptim.vec2tikz(iterates[i, :]) for i in 1:size(iterates, 1)]
+    push!(
+        axis,
+        PlotInc(
+            PGFPlotsX.Options(
+                # "smooth" => nothing,
+                "thick" => nothing,
+                "solid" => nothing,
+                "lightgray" => nothing,
+                "color={$color}" => nothing,
+                "mark={$mark}" => nothing,
+                # "mark size" => "1pt"
+            ),
+            Coordinates(coords),
+        ),
+    )
+    return
+end
+
+"""
+    $TYPEDSIGNATURES
+
+TODO
+"""
+function add_legend!(axis, legendentry)
+    push!(axis, raw"\addlegendentry {" * legendentry * raw"}")
+    return
+end
+
+
 export baseaxis
-export add_contour!, add_curve!, add_segment!, add_text!
+export add_contour!, add_curve!, add_segment!, add_text!, add_level!, plot_linspace!, add_iterates!, add_legend!

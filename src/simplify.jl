@@ -49,7 +49,7 @@ converting coordinates to `log10` and back when needed.
 
 The implemented algorithm relies on `Meshes.simplify`.
 """
-function simplifyline(inpoints, precision; xmode="normal", ymode="normal") where Tf
+function simplifyline(inpoints::Vector{Tuple{Tf, Tf}}, precision::Tf; xmode="normal", ymode="normal") where Tf
     @assert xmode in ["normal", "log"]
     @assert ymode in ["normal", "log"]
 
@@ -65,7 +65,6 @@ function simplifyline(inpoints, precision; xmode="normal", ymode="normal") where
 
     xmode == "log" && map!(p -> (log10(p[1]), p[2]), points, points)
     ymode == "log" && map!(p -> (p[1], log10(p[2])), points, points)
-
 
     polyarea = Chain(points)
     simplline = simplify(polyarea, DouglasPeucker(precision))
