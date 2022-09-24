@@ -28,6 +28,8 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c7}{RGB}{170, 51, 119}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{c8}{RGB}{187, 187, 187}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\prox}{\textrm{prox}}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\Hess}{\textrm{Hess}}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\grad}{\textrm{grad}}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\M}{\mathcal{M}}")
     end
     return
