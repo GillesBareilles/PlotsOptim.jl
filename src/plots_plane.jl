@@ -70,7 +70,7 @@ end
 
 Add point at `x`, with choice of `mark`, `name`, and `pert` for name position.
 """
-function add_point!(axis, x; mark = "x", name = "x", pert=[0.2, -0.2], color="black")
+function add_point!(axis, x; mark = "x", name = "x", pert=[0.2, -0.2], color="black", size = raw"\normalsize")
     coords = [x]
 
     push!(
@@ -91,7 +91,9 @@ function add_point!(axis, x; mark = "x", name = "x", pert=[0.2, -0.2], color="bl
         x[1] + pert[1],
         ", ",
         x[2] + pert[2],
-        raw") {{\small $",
+        raw") {{",
+        size,
+        raw"$",
         name,
         raw"$}};"
     ))
@@ -103,7 +105,7 @@ end
 
 Add text `text` at position `pos`, possibly shifted by `pert`.
 """
-function add_text!(axis, pos, text; pert = [0., 0.], color="black", size=raw"\small")
+function add_text!(axis, pos, text; pert = [0., 0.], color="black", size=raw"\normalsize")
     push!(axis, string(
         raw"\node[", color, "] at (axis cs: ",
         pos[1] + pert[1],
@@ -152,7 +154,7 @@ Add segment defined by `coords`.
 
 See (@add_curve!)
 """
-function add_segment!(axis, coords; color="chartreuse", linestyle = "solid", linewidth="0.4pt")
+function add_segment!(axis, coords; color="chartreuse", linestyle = "solid", linewidth = "thick")
     push!(
         axis,
         PlotInc(
@@ -161,7 +163,7 @@ function add_segment!(axis, coords; color="chartreuse", linestyle = "solid", lin
                 "no marks" => nothing,
                 "semithick" => nothing,
                 linestyle => nothing,
-                "line width" => linewidth,
+                linewidth => nothing,
                 color => nothing,
             ),
             Coordinates(vec2tikz.(coords)),
