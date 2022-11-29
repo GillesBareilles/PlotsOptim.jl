@@ -96,18 +96,17 @@ function plot_curves(
         ord = get_ordinates(obj, trace)
         curvestyle = get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)
 
-        points = [(abs[i], ord[i]) for i in 1:length(abs)]
+        points = Tuple{Float64, Float64}[(abs[i], ord[i]) for i in 1:length(abs)]
         if simplifylines
             points = simplifyline(points, simplificationfactor; xmode, ymode)
         end
 
-        lineoptions = get_curveparams(obj, algoid, ntraces, COLORS, MARKERS)
-        !isinf(markrepeat) && push!(lineoptions, "mark repeat" => markrepeat)
+        !isinf(markrepeat) && push!(curvestyle, "mark repeat" => markrepeat)
 
         push!(
             plotdata,
             PlotInc(
-                PGFPlotsX.Options(lineoptions...),
+                PGFPlotsX.Options(curvestyle...),
                 Coordinates(points),
             ),
         )
