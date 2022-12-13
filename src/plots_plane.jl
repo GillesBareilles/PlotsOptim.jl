@@ -3,17 +3,18 @@
 
 Build the base `Axis object`.
 """
-function baseaxis(axb; width = "8cm", height = "6cm")
+function baseaxis(axb; width = "8cm", height = "6cm", ticks = "both", legend_pos = "outer north east")
     return @pgf Axis({
             xmin = axb.xmin,
             xmax = axb.xmax,
             ymin = axb.ymin,
             ymax = axb.ymax,
-            legend_pos = "outer north east",
+            "legend_pos" = legend_pos,
             legend_cell_align = "left",
             legend_style = "font=\\footnotesize",
             "width" = width,
             "height" = height,
+            "ticks" = ticks,
     })
 end
 
@@ -48,7 +49,7 @@ end
 
 Add surface defined by `coords`, a vector of length 2 vectors.
 """
-function add_surface!(axis, color, coords)
+function add_surface!(axis, coords; color = "c1", fill_opacity = 0.25)
     coords_simple = PlotsOptim.simplifyline(vec2tikz.(coords), 0.001)
     push!(
         axis,
@@ -58,7 +59,7 @@ function add_surface!(axis, color, coords)
                 "no marks" => nothing,
                 "fill" => color,
                 "draw" => "none",
-                "fill_opacity" => 0.25,
+                "fill_opacity" => fill_opacity,
             ),
             Coordinates(coords_simple),
         ),
@@ -126,7 +127,7 @@ end
 Add curve defined by `coords`, with some `color`.
 The curve is simplified with `(@simplifyline)`.
 """
-function add_curve!(axis, coords; color = "chartreuse", style = "")
+function add_curve!(axis, coords; color = "chartreuse", style = "", linewidth = "thick")
     coords_simple = PlotsOptim.simplifyline(coords, 0.001)
     push!(
         axis,
@@ -135,9 +136,9 @@ function add_curve!(axis, coords; color = "chartreuse", style = "")
                 "forget plot" => nothing,
                 "no marks" => nothing,
                 "smooth" => nothing,
-                "thick" => nothing,
+                linewidth => nothing,
                 "solid" => nothing,
-                "lightgray" => nothing,
+                # "lightgray" => nothing,
                 style => nothing,
                 color => nothing,
                 # "mark size" => "1pt"
@@ -181,8 +182,9 @@ Parameters:
 - `colormap`: default is "hot", "blackwhite" is possible
 - `opacity`
 - `levels` either the number of levels, or the vector of level values
+- `line_width` contour line width
 """
-function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colormap="hot", opacity=1, levels = 10)
+function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colormap="hot", opacity=1, levels = 10, line_width = "thin")
     xs, ys = get_axesdiscretization(axb, 200)
     φ(x, y) = F([x, y])
 
@@ -195,7 +197,7 @@ function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colorm
                 "no marks" => nothing,
                 "colormap/$colormap" => nothing,
                 "opacity" => opacity,
-                "ultra_thin" => nothing,
+                line_width => nothing,
             ),
             Table(PGFPlotsX.Options(
                     "col sep" => "space",

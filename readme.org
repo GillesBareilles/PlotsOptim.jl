@@ -38,6 +38,8 @@ plot_taylordev(build_logcurves(model_to_functions))
 plot_taylordev(model_to_functions)
 #+end_src
 
+* Drawings
+
 * Performance profiles
 #+begin_src julia
 toydata = PlotsOptim.perfprofile_toydata()

@@ -31,6 +31,7 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\Hess}{\textrm{Hess}}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\grad}{\textrm{grad}}")
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\M}{\mathcal{M}}")
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\newcommand{\R}{\mathoperator{R}}")
     end
     return
 end

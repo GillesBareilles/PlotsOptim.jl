@@ -3,13 +3,13 @@
 
 Build the base `Axis object`.
 """
-function baseaxis_line(axb; width = "8cm", height = "6cm")
+function baseaxis_line(axb; width = "8cm", height = "6cm", legend_pos = "outer north east")
     return @pgf Axis({
             xmin = axb.xmin,
             xmax = axb.xmax,
             # ymin = axb.ymin,
             # ymax = axb.ymax,
-            legend_pos = "outer north east",
+            legend_pos,
             legend_cell_align = "left",
             legend_style = "font=\\footnotesize",
             "width" = width,
