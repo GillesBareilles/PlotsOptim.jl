@@ -4,6 +4,31 @@ Build plots with ~PGFPlots(X.jl)~ for all your optimal algorithms.
 
 *This repository is a work in progress.* Check out the docs for more information.
 
+* Usage
+** Two dimensional plots
+#+begin_src julia
+xmin, xmax = -2, 2
+ymin, ymax = -1.5, 1.5
+
+axisbounds = (;xmin, xmax, ymin, ymax)
+axis = baseaxis(axisbounds)
+
+add_arrow!(axis, [-1, -1], [0, 1])
+add_surface!(axis, [[0, 0], [1, 0], [0.5, 1]])
+
+add_point!(axis, [-1, 1]; name = "y")
+add_text!(axis, [-1, -1], "\nabla f(x)")
+
+add_curve!()
+add_segment!()
+add_contour!()
+
+add_level!()
+add_iterates!()
+
+add_legend!()
+#+end_src
+
 * Checking derivatives using Taylor developments
 
 #+begin_src julia

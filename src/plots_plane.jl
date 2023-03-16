@@ -36,7 +36,7 @@ end
 
 Add arrow representing vector `d` with foot `x`
 """
-function add_arrow!(axis, x::Vector{Float64}, d::Vector{Tf}; color="tomato", style="") where Tf <: Real
+function add_arrow!(axis, x::Vector{Tf}, d::Vector{Tf}; color="tomato", style="") where Tf <: Real
     if style == ""
         push!(axis, raw"\draw [thick, "*color*", -stealth]"*string(vec2tikz(x))*" -- "*string(vec2tikz(x+d))*";")
     else
@@ -49,8 +49,8 @@ end
 
 Add surface defined by `coords`, a vector of length 2 vectors.
 """
-function add_surface!(axis, coords; color = "c1", fill_opacity = 0.25)
-    coords_simple = PlotsOptim.simplifyline(vec2tikz.(coords), 0.001)
+function add_surface!(axis, coords; color = "c1", fill_opacity = 0.25, simplify = true)
+    coords_simple = simplify ? PlotsOptim.simplifyline(vec2tikz.(coords), 0.001) : vec2tikz.(coords)
     push!(
         axis,
         PlotInc(
@@ -71,7 +71,7 @@ end
 
 Add point at `x`, with choice of `mark`, `name`, and `pert` for name position.
 """
-function add_point!(axis, x; mark = "x", name = "x", pert=[0.2, -0.2], color="black", size = raw"\normalsize")
+function add_point!(axis, x; mark = "x", name = "", pert=[0.2, -0.2], color="black", size = raw"\normalsize")
     coords = [x]
 
     push!(
@@ -173,6 +173,8 @@ function add_segment!(axis, coords; color="chartreuse", linestyle = "solid", lin
     return
 end
 
+# using SharedArrays, Distributed
+
 """
     $TYPEDSIGNATURES
 
@@ -183,17 +185,38 @@ Parameters:
 - `opacity`
 - `levels` either the number of levels, or the vector of level values
 - `line_width` contour line width
+- `labels`: include labels?
+- `filled`: if false only level lines
+- `npoints`: number of points of discretization
 """
-function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colormap="hot", opacity=1, levels = 10, line_width = "thin")
-    xs, ys = get_axesdiscretization(axb, 200)
+function add_contour!(axis::PGFPlotsX.Axis, F, axb::NamedTuple; colormap="hot", opacity=1, levels = 10, line_width = "thin", labels=false, filled=false, npoints = 200)
+    xs, ys = get_axesdiscretization(axb, npoints)
     φ(x, y) = F([x, y])
+
+    @time begin
+    φxy = zeros(Float64, size(xs, 1), size(ys, 1))
+    for i in axes(xs, 1), j in axes(ys, 1)
+        φxy[i, j] = φ.(xs[i], ys[j])
+    end
+    end
+
+    # @time begin
+    # φxy = SharedMatrix{Float64}(size(xs, 1), size(ys, 1))
+    # @sync @distributed for i in axes(xs, 1)
+    #     for j in axes(ys, 1)
+    #         φxy[i, j] = φ.(xs[i], ys[j])
+    #     end
+    # end
+    # end
+
+    # @show norm(φxy - res3)
 
     push!(
         axis,
         PlotInc(
             PGFPlotsX.Options(
                 "forget_plot" => nothing,
-                "contour_prepared" => nothing,
+                "contour_prepared" => "{labels = $(labels), filled = $(filled)}",
                 "no marks" => nothing,
                 "colormap/$colormap" => nothing,
                 "opacity" => opacity,
@@ -202,7 +225,7 @@ function add_contour!(axis::PGFPlotsX.Axis, F::Function, axb::NamedTuple; colorm
             Table(PGFPlotsX.Options(
                     "col sep" => "space",
                 ),
-                contours(xs, ys, φ.(xs, ys'), levels)
+                contours(xs, ys, φxy, levels)
             )
         )
     )
@@ -247,7 +270,7 @@ function add_iterates!(axis, iterates::Matrix; color="blue", mark="+")
         PlotInc(
             PGFPlotsX.Options(
                 # "smooth" => nothing,
-                "thick" => nothing,
+                "thin" => nothing,
                 "solid" => nothing,
                 "lightgray" => nothing,
                 "color={$color}" => nothing,
