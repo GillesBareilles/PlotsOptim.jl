@@ -79,6 +79,8 @@ function plot_curves(
     simplificationfactor = 1e-2,
     width = "8cm",
     height = "6cm",
+    xmax = "",
+    ymax = "",
     callback! = (wargs...) -> nothing,
     horizontallines = [],
 )
@@ -130,6 +132,8 @@ function plot_curves(
             legend_style = "font=\\footnotesize",
             legend_cell_align = "left",
             unbounded_coords = "jump",
+            xmax = xmax,
+            ymax = ymax,
             title = title,
             xmin = 0,
             width = width,
