@@ -9,7 +9,7 @@ function baseaxis_line(axb; width = "8cm", height = "6cm", legend_pos = "outer n
             xmax = axb.xmax,
             # ymin = axb.ymin,
             # ymax = axb.ymax,
-            legend_pos,
+            "legend pos" = legend_pos,
             legend_cell_align = "left",
             legend_style = "font=\\footnotesize",
             "width" = width,

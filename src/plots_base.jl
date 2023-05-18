@@ -63,6 +63,7 @@ of:
 ## Arguments:
 - `simplifystairs`: call the function `simplify_stairs` on every curve;
 - `callback!: (plotdata, obj, trace, abs, ord)->nothing`: allows one to add more information to the figure;
+- `verticallines`: a named tuple, eg `(; style = "dashed", color = "red", level = 10)`
 """
 function plot_curves(
     object_to_trace::AbstractDict,
@@ -83,6 +84,7 @@ function plot_curves(
     ymax = "",
     callback! = (wargs...) -> nothing,
     horizontallines = [],
+    verticallines = []
 )
     ntraces = length(object_to_trace)
     COLORS = (ntraces <= 7 ? COLORS_7 : COLORS_10)
@@ -121,6 +123,9 @@ function plot_curves(
     for hlevel in horizontallines
         push!(plotdata, @pgf HLine({ dashed, black }, hlevel))
     end
+    for hline in verticallines
+        push!(plotdata, VLine(PGFPlotsX.Options(hline.style => nothing, hline.color => nothing), hline.level))
+    end
 
     return TikzPicture(@pgf Axis(
         {
@@ -128,7 +133,7 @@ function plot_curves(
             ymode = ymode,
             xlabel = xlabel,
             ylabel = ylabel,
-            legend_pos = "outer north east",
+            "legend pos" = "outer north east",
             legend_style = "font=\\footnotesize",
             legend_cell_align = "left",
             unbounded_coords = "jump",

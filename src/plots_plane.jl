@@ -3,18 +3,19 @@
 
 Build the base `Axis object`.
 """
-function baseaxis(axb; width = "8cm", height = "6cm", ticks = "both", legend_pos = "outer north east")
+function baseaxis(axb; width = "8cm", height = "6cm", ticks = "both", legend_pos = "outer north east", title = "")
     return @pgf Axis({
-            xmin = axb.xmin,
-            xmax = axb.xmax,
-            ymin = axb.ymin,
-            ymax = axb.ymax,
-            "legend_pos" = legend_pos,
-            legend_cell_align = "left",
-            legend_style = "font=\\footnotesize",
-            "width" = width,
-            "height" = height,
-            "ticks" = ticks,
+        xmin = axb.xmin,
+        xmax = axb.xmax,
+        ymin = axb.ymin,
+        ymax = axb.ymax,
+        "title" = title,
+        "legend pos" = legend_pos,
+        legend_cell_align = "left",
+        legend_style = "font=\\footnotesize",
+        "width" = width,
+        "height" = height,
+        "ticks" = ticks,
     })
 end
 
@@ -215,8 +216,9 @@ function add_contour!(axis::PGFPlotsX.Axis, F, axb::NamedTuple; colormap="hot", 
         axis,
         PlotInc(
             PGFPlotsX.Options(
-                "forget_plot" => nothing,
-                "contour_prepared" => "{labels = $(labels), filled = $(filled)}",
+                "forget plot" => nothing,
+                # "contour prepared" => "{labels = $(labels), filled = $(filled)}",
+                "contour prepared" => "{filled = $(filled)}",
                 "no marks" => nothing,
                 "colormap/$colormap" => nothing,
                 "opacity" => opacity,
@@ -265,6 +267,16 @@ TODO
 """
 function add_iterates!(axis, iterates::Matrix; color="blue", mark="+")
     coords = [PlotsOptim.vec2tikz(iterates[i, :]) for i in 1:size(iterates, 1)]
+
+    table = @pgf Table(
+        {
+            meta = "label"
+        },
+        x = [iterates[i, 1] for i in axes(iterates, 1)],
+        y = [iterates[i, 2] for i in axes(iterates, 1)],
+        label = [ 1/i for i in axes(iterates, 1)],
+    )
+
     push!(
         axis,
         PlotInc(
@@ -272,12 +284,12 @@ function add_iterates!(axis, iterates::Matrix; color="blue", mark="+")
                 # "smooth" => nothing,
                 "thin" => nothing,
                 "solid" => nothing,
-                "lightgray" => nothing,
-                "color={$color}" => nothing,
+                # "color={$color}" => nothing,
                 "mark={$mark}" => nothing,
+                "point meta" => " \\thisrow{label} "
                 # "mark size" => "1pt"
             ),
-            Coordinates(coords),
+            table
         ),
     )
     return
