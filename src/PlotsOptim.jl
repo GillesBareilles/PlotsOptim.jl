@@ -44,16 +44,16 @@ function __init__()
 
         # Paul Tol's light color scheme
         for coldef in [
-            raw"\definecolor{light_blue}{HTML}{#77AADD}",
-            raw"\definecolor{orange}{HTML}{#EE8866}",
-            raw"\definecolor{light_yellow}{HTML}{#EEDD88}",
-            raw"\definecolor{pink}{HTML}{#FFAABB}",
-            raw"\definecolor{light_cyan}{HTML}{#99DDFF}",
-            raw"\definecolor{mint}{HTML}{#44BB99}",
-            raw"\definecolor{pear}{HTML}{#BBCC33}",
-            raw"\definecolor{olive}{HTML}{#AAAA00}",
-            raw"\definecolor{pale_grey}{HTML}{#DDDDDD}",
-            raw"\definecolor{black}{HTML}{#000000}",
+            raw"\definecolor{light_blue}{HTML}{77AADD}",
+            raw"\definecolor{orange}{HTML}{EE8866}",
+            raw"\definecolor{light_yellow}{HTML}{EEDD88}",
+            raw"\definecolor{pink}{HTML}{FFAABB}",
+            raw"\definecolor{light_cyan}{HTML}{99DDFF}",
+            raw"\definecolor{mint}{HTML}{44BB99}",
+            raw"\definecolor{pear}{HTML}{BBCC33}",
+            raw"\definecolor{olive}{HTML}{AAAA00}",
+            raw"\definecolor{pale_grey}{HTML}{DDDDDD}",
+            raw"\definecolor{black}{HTML}{000000}",
             ]
             push!(PGFPlotsX.CUSTOM_PREAMBLE, coldef)
         end
