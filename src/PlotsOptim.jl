@@ -2,6 +2,7 @@ module PlotsOptim
 
 using Reexport
 @reexport using PGFPlotsX
+@reexport using LaTeXStrings
 using Contour
 using Colors
 using LinearAlgebra
@@ -106,6 +107,7 @@ export plot_taylordev
 
 include("plots_base.jl")
 export plot_curves
+export get_abscisses, get_ordinates
 export get_legendname, get_curveparams
 export savefig
 

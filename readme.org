@@ -6,6 +6,8 @@ Build plots with ~PGFPlots(X.jl)~ for all your optimal algorithms.
 
 * Usage
 ** Two dimensional plots
+Draw points, lines, sets, arrows in the plane.
+
 #+begin_src julia
 xmin, xmax = -2, 2
 ymin, ymax = -1.5, 1.5
@@ -27,6 +29,44 @@ add_level!()
 add_iterates!()
 
 add_legend!()
+#+end_src
+
+** Suboptimality-like plots
+Plot one quantity (e.g. suboptimality) versus another (e.g. iterations).
+Check the docstring of ~plot_curves~ for options.
+
+#+begin_src julia
+fig = plot_curves(
+    Dict(
+        L"f(x_k) - f^\star" => (1:30, [1/k for k in 1:30]),
+        L"f(x_k)" => (1:30, [1/k + 3.0 for k in 1:30]),
+    ), get_abscisses, get_ordinates;
+    xlabel=raw"iteration $k$", ylabel=raw"",
+)
+#+end_src
+
+Save several plots in one pdf file.
+#+begin_src julia
+axis = []
+push!(axis, plot_curves(
+    Dict(
+        L"f(x_k) - f^\star" => (1:30, [1/k for k in 1:30]),
+    ), get_abscisses, get_ordinates;
+    xlabel=raw"iteration $k$", ylabel=raw"",
+))
+push!(axis, plot_curves(
+    Dict(
+        L"f(x_k)" => (1:30, [1/k + 3.0 for k in 1:30]),
+    ), get_abscisses, get_ordinates;
+    xlabel=raw"iteration $k$", ylabel=raw"",
+    ymode="normal",
+))
+fig = TikzDocument(axis...)
+#+end_src
+
+Save the figure
+#+begin_src
+savefig(fig, "nullpoints_convex"; FIGFOLDER = ".", include_preamble = false)
 #+end_src
 
 * Checking derivatives using Taylor developments
