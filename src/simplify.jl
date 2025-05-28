@@ -67,8 +67,8 @@ function simplifyline(inpoints::Vector{Tuple{Tf, Tf}}, precision::Tf; xmode="nor
     ymode == "log" && map!(p -> (p[1], log10(p[2])), points, points)
 
     rope = Rope(points)
-    simplerope = Meshes.simplify(rope, DouglasPeucker(precision))
-    points = [(v.coords[1], v.coords[2]) for v in simplerope.vertices]
+    simplerope = Meshes.simplify(rope, DouglasPeuckerSimplification(precision))
+    points = [(v.coords.x.val, v.coords.y.val) for v in simplerope.vertices]
 
     xmode == "log" && map!(p -> (10^p[1], p[2]), points, points)
     ymode == "log" && map!(p -> (p[1], 10^p[2]), points, points)
