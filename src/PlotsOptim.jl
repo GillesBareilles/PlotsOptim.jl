@@ -43,6 +43,14 @@ function __init__()
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright6}{HTML}{AA3377}") # purple
         push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright7}{HTML}{BBBBBB}") # grey
 
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_blue}{HTML}{4477AA}") # blue
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_red}{HTML}{EE6677}") # red
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_green}{228833}") # green
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_yellow}{HTML}{CCBB44}") # yellow
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_cyan}{HTML}{66CCEE}") # cyan
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_purple}{HTML}{AA3377}") # purple
+        push!(PGFPlotsX.CUSTOM_PREAMBLE, raw"\definecolor{bright_grey}{HTML}{BBBBBB}") # grey
+
         # Paul Tol's light color scheme
         for coldef in [
             raw"\definecolor{light_blue}{HTML}{77AADD}",
